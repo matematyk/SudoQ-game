@@ -12,7 +12,7 @@ body {
 }
 
 .sudoku-container {
-  border: 4px solid #1f171f;
+  border: 4px solid #ad4aad;
   margin: 0 auto;
   position: relative;
   padding: 0 2px;
@@ -24,29 +24,25 @@ body {
   content: "";
 }
 .sudoku-container::before {
-  width: 156px;
-  border-width: 0 4px;
-  border-color: transparent #1f171f transparent #1f171f;
-  top: 4px;
-  left: 160px;
-  bottom: 4px;
+  border-width: 0 2px;
+  border-color: transparent #ad4aad;
+  top: 0px;
+  left: 94px;
+  bottom: 0px;
 }
 .sudoku-container::after {
-  height: 156px;
-  border-width: 4px 0;
-  border-color: #1f171f transparent #1f171f transparent;
-  left: 4px;
-  top: 160px;
-  right: 4px;
+  border-width: 2px 0;
+  border-color: #ad4aad transparent;
+  left: 0px;
+  top: 94px;
+  right: 0px;
 }
 
-tr:nth-child(1) td:nth-child(3) input,
-tr:nth-child(1) td:nth-child(6) input {
+tr:nth-child(1) td:nth-child(2) input {
   margin: 0 10px 0 0;
 }
 
-tr:nth-child(3) input,
-tr:nth-child(6) input {
+tr:nth-child(2) input {
   margin: 0 0 10px 0;
 }
 
