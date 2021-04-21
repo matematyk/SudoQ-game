@@ -76,7 +76,7 @@
 	Game.prototype = {
 		/**
 		 * Build the game GUI
-		 * @returns {HTMLTableElement} Table containing 9x9 input matrix
+		 * @returns {HTMLTableElement} Table containing 4x4 input matrix
 		 */
 		buildGUI: function() {
 			var td, tr;
@@ -84,11 +84,11 @@
 			this.table = document.createElement("table");
 			this.table.classList.add("sudoku-container");
 
-			for (var i = 0; i < 9; i++) {
+			for (var i = 0; i < 4; i++) {
 				tr = document.createElement("tr");
 				this.cellMatrix[i] = {};
 
-				for (var j = 0; j < 9; j++) {
+				for (var j = 0; j < 4; j++) {
 					// Build the input
 					this.cellMatrix[i][j] = document.createElement("input");
 					this.cellMatrix[i][j].maxLength = 1;
@@ -105,8 +105,8 @@
 					td.appendChild(this.cellMatrix[i][j]);
 
 					// Calculate section ID
-					var sectIDi = Math.floor(i / 3);
-					var sectIDj = Math.floor(j / 3);
+					var sectIDi = Math.floor(i / 2);
+					var sectIDj = Math.floor(j / 2);
 					// Set the design for different sections
 					if ((sectIDi + sectIDj) % 2 === 0) {
 						td.classList.add("sudoku-section-one");
@@ -160,9 +160,9 @@
 			}
 
 			// Calculate section identifiers
-			sectRow = Math.floor(row / 3);
-			sectCol = Math.floor(col / 3);
-			secIndex = row % 3 * 3 + col % 3;
+			sectRow = Math.floor(row / 2);
+			sectCol = Math.floor(col / 2);
+			secIndex = row % 2 * 2 + col % 2;
 
 			// Cache value in matrix
 			this.matrix.row[row][col] = val;
@@ -183,8 +183,8 @@
 		 */
 		resetGame: function() {
 			this.resetValidationMatrices();
-			for (var row = 0; row < 9; row++) {
-				for (var col = 0; col < 9; col++) {
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++) {
 					// Reset GUI inputs
 					this.cellMatrix[row][col].value = "";
 				}
@@ -216,19 +216,19 @@
 			};
 
 			// Build the row/col matrix and validation arrays
-			for (var i = 0; i < 9; i++) {
-				this.matrix.row[i] = ["", "", "", "", "", "", "", "", ""];
-				this.matrix.col[i] = ["", "", "", "", "", "", "", "", ""];
+			for (var i = 0; i < 4; i++) {
+				this.matrix.row[i] = ["", "", "", ""];
+				this.matrix.col[i] = ["", "", "", ""];
 				this.validation.row[i] = [];
 				this.validation.col[i] = [];
 			}
 
 			// Build the section matrix and validation arrays
-			for (var row = 0; row < 3; row++) {
+			for (var row = 0; row < 2; row++) {
 				this.matrix.sect[row] = [];
 				this.validation.sect[row] = {};
-				for (var col = 0; col < 3; col++) {
-					this.matrix.sect[row][col] = ["", "", "", "", "", "", "", "", ""];
+				for (var col = 0; col < 2; col++) {
+					this.matrix.sect[row][col] = ["", "", "", ""];
 					this.validation.sect[row][col] = [];
 				}
 			}
@@ -246,8 +246,8 @@
 		validateNumber: function(num, rowID, colID, oldNum) {
 			var isValid = true,
 				// Section
-				sectRow = Math.floor(rowID / 3),
-				sectCol = Math.floor(colID / 3),
+				sectRow = Math.floor(rowID / 2),
+				sectCol = Math.floor(colID / 2),
 				row = this.validation.row[rowID],
 				col = this.validation.col[colID],
 				sect = this.validation.sect[sectRow][sectCol];
@@ -276,7 +276,7 @@
 				if (
 					// Make sure value is within range
 					Number(num) > 0 &&
-					Number(num) <= 9
+					Number(num) <= 4
 				) {
 					// Check if it already exists in validation array
 					if (
@@ -313,8 +313,8 @@
 
 			// Go over entire board, and compare to the cached
 			// validation arrays
-			for (var row = 0; row < 9; row++) {
-				for (var col = 0; col < 9; col++) {
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++) {
 					val = this.matrix.row[row][col];
 					// Validate the value
 					isValid = this.validateNumber(val, row, col, val);
@@ -353,9 +353,9 @@
 				legalValues = this.findLegalValuesForSquare(sqRow, sqCol);
 
 				// Find the segment id
-				sectRow = Math.floor(sqRow / 3);
-				sectCol = Math.floor(sqCol / 3);
-				secIndex = sqRow % 3 * 3 + sqCol % 3;
+				sectRow = Math.floor(sqRow / 2);
+				sectCol = Math.floor(sqCol / 2);
+				secIndex = sqRow % 2 * 2 + sqCol % 2;
 
 				// Try out legal values for this cell
 				for (var i = 0; i < legalValues.length; i++) {
@@ -400,9 +400,9 @@
 		 */
 		findClosestEmptySquare: function(row, col) {
 			var walkingRow, walkingCol, found = false;
-			for (var i = col + 9 * row; i < 81; i++) {
-				walkingRow = Math.floor(i / 9);
-				walkingCol = i % 9;
+			for (var i = col + 4 * row; i < 16; i++) {
+				walkingRow = Math.floor(i / 4);
+				walkingCol = i % 4;
 				if (this.matrix.row[walkingRow][walkingCol] === "") {
 					found = true;
 					return this.cellMatrix[walkingRow][walkingCol];
@@ -424,13 +424,13 @@
 				legalNums,
 				val,
 				i,
-				sectRow = Math.floor(row / 3),
-				sectCol = Math.floor(col / 3);
+				sectRow = Math.floor(row / 2),
+				sectCol = Math.floor(col / 2);
 
-			legalNums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+			legalNums = [1, 2, 3, 4];
 
 			// Check existing numbers in col
-			for (i = 0; i < 9; i++) {
+			for (i = 0; i < 4; i++) {
 				val = Number(this.matrix.col[col][i]);
 				if (val > 0) {
 					// Remove from array
@@ -441,7 +441,7 @@
 			}
 
 			// Check existing numbers in row
-			for (i = 0; i < 9; i++) {
+			for (i = 0; i < 4; i++) {
 				val = Number(this.matrix.row[row][i]);
 				if (val > 0) {
 					// Remove from array
@@ -452,9 +452,9 @@
 			}
 
 			// Check existing numbers in section
-			sectRow = Math.floor(row / 3);
-			sectCol = Math.floor(col / 3);
-			for (i = 0; i < 9; i++) {
+			sectRow = Math.floor(row / 2);
+			sectCol = Math.floor(col / 2);
+			for (i = 0; i < 4; i++) {
 				val = Number(this.matrix.sect[sectRow][sectCol][i]);
 				if (val > 0) {
 					// Remove from array
@@ -565,9 +565,9 @@
 				rows = this.game.matrix.row,
 				inputs = this.game.table.getElementsByTagName("input"),
 				difficulties = {
-					"easy": 50,
-					"normal": 40,
-					"hard": 30,
+					"easy": 8,
+					"normal": 7,
+					"hard": 6,
 				};
 
 			// Solve the game to get the solution
