@@ -1,3 +1,4 @@
 # SudoQ-game
 SudoQ game repository
-Sprawdzam
+Sprawdzam Jerzy
+proba Grzesiek
