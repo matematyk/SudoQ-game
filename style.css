@@ -27,14 +27,14 @@ body {
   border-width: 0 2px;
   border-color: transparent #ad4aad;
   top: 0px;
-  left: 94px;
+  left: 154px;
   bottom: 0px;
 }
 .sudoku-container::after {
   border-width: 2px 0;
   border-color: #ad4aad transparent;
   left: 0px;
-  top: 94px;
+  top: 154px;
   right: 0px;
 }
 
@@ -47,8 +47,8 @@ tr:nth-child(2) input {
 }
 
 .sudoku-container input {
-  width: 40px;
-  height: 40px;
+  width: 70px;
+  height: 70px;
   text-align: center;
   font-size: 20px;
   padding: 0;

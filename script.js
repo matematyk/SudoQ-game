@@ -91,7 +91,7 @@
 				for (var j = 0; j < 4; j++) {
 					// Build the input
 					this.cellMatrix[i][j] = document.createElement("input");
-					this.cellMatrix[i][j].maxLength = 1;
+					this.cellMatrix[i][j].maxLength = 5;
 
 					// Using dataset returns strings which means messing around parsing them later
 					// Set custom properties instead
@@ -147,14 +147,14 @@
 			this.table.classList.remove("valid-matrix");
 			input.classList.remove("invalid");
 
-			if (!util.isNumber(val)) {
-				input.value = "";
-				return false;
-			}
+			//if (!util.isNumber(val)) {
+			//	input.value = ""; @TODO wyrazenie regularne
+			//	return false;
+			//}
 
 			// Validate, but only if validate_on_insert is set to true
 			if (this.config.validate_on_insert) {
-				isValid = this.validateNumber(val, row, col, this.matrix.row[row][col]);
+				isValid = this.validateVector(val, row, col, this.matrix.row[row][col]);
 				// Indicate error
 				input.classList.toggle("invalid", !isValid);
 			}
@@ -305,6 +305,76 @@
 		},
 
 		/**
+		 * Validate the current vector that was inserted.
+		 *
+		 * @param {String} vector The value that is inserted
+		 * @param {Number} rowID The row the number belongs to
+		 * @param {Number} colID The column the number belongs to
+		 * @param {String} oldVector The previous value
+		 * @returns {Boolean} Valid or invalid input
+		 */
+		validateVector: function(vector, rowID, colID, oldVec) {
+			var isValid = true,
+				// Section
+				sectRow = Math.floor(rowID / 2),
+				sectCol = Math.floor(colID / 2),
+				row = this.validation.row[rowID],
+				col = this.validation.col[colID],
+				sect = this.validation.sect[sectRow][sectCol];
+
+			// This is given as the matrix component (old value in
+			// case of change to the input) in the case of on-insert
+			// validation. However, in the solver, validating the
+			// old number is unnecessary.
+			oldVec = oldVec || "";
+
+			// Remove oldNum from the validation matrices,
+			// if it exists in them.
+			if (util.includes(row, oldVec)) {
+				row.splice(row.indexOf(oldVec), 1);
+			}
+			if (util.includes(col, oldVec)) {
+				col.splice(col.indexOf(oldVec), 1);
+			}
+			if (util.includes(sect, oldVec)) {
+				sect.splice(sect.indexOf(oldVec), 1);
+			}
+			// Skip if empty value
+
+			if (vector !== "") {
+				// Validate value
+				if (
+					// Make sure value is within range
+					true 
+					//@TODO regex
+				) {
+					// Check if it already exists in validation array
+					if (
+						util.includes(row, vector) ||
+						util.includes(col, vector) ||
+						util.includes(sect, vector)
+					) {
+						isValid = false;
+					} else {
+						isValid = true;
+					}
+				}
+
+				// Insert new value into validation array even if it isn't
+				// valid. This is on purpose: If there are two vectors in the
+				// same row/col/section and one is replaced, the other still
+				// exists and should be reflected in the validation.
+				// The validation will keep records of duplicates so it can
+				// remove them safely when validating later changes.
+				row.push(vector);
+				col.push(vector);
+				sect.push(vector);
+			}
+
+			return isValid;
+		},
+
+		/**
 		 * Validate the entire matrix
 		 * @returns {Boolean} Valid or invalid matrix
 		 */
@@ -317,7 +387,7 @@
 				for (var col = 0; col < 4; col++) {
 					val = this.matrix.row[row][col];
 					// Validate the value
-					isValid = this.validateNumber(val, row, col, val);
+					isValid = this.validateVector(val, row, col, val);
 					this.cellMatrix[row][col].classList.toggle("invalid", !isValid);
 					if (!isValid) {
 						hasError = true;
@@ -325,6 +395,66 @@
 				}
 			}
 			return !hasError;
+		},
+
+
+		/**
+		 * Validate the entire matrix
+		 * @param {String} vector The value that is inserted
+		 * @returns {Boolean} Valid or invalid matrix
+		 */
+		parseKet: function(vector) {
+			var dict = new Object();
+			dict = {
+				'1': [1,0,0,0],
+				'2': [0,1,0,0],
+				'3': [0,0,1,0],
+				'4': [0,0,0,1]
+			}
+			
+			var v1 = [0,0,0,0]
+			var flag = false 
+			var add = false
+			var v2 = [0,0,0,0]
+
+			for (var i = 0; i < vector.length; i++) {
+				c = vector.charAt(i);
+				if (c >= '1' && c <= '4') {
+					if (flag == false) {
+						v1 = dict[c] //read first vector
+						console.log(v1, v2);
+						flag = true;
+					} else {
+						v2 = dict[c] //read second vector
+						console.log(v1, v2);
+						add = true;
+					}
+				} else {
+					if (flag == dodac) { //@todo róznica
+						if (c == "+"){
+							v1 = this.sum(v1,v2);
+							add = false;
+						}
+					}
+				}
+			}
+			this.sum(v1,v2);
+
+			return !hasError;
+		},
+
+		/**
+		 * Validate the entire matrix
+		 * @param {String} vector The value that is inserted
+		 * @returns {Boolean} Valid or invalid matrix
+		 */
+		sum: function(v1, v2) {
+			let v = [0,0,0,0];
+			v[0] = v1[0] + v2[0];
+			v[1] = v1[1] + v2[1];
+			v[2] = v1[2] + v2[2];
+			v[3] = v1[3] + v2[3];
+			return v
 		},
 
 		/**
