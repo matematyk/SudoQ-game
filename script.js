@@ -165,6 +165,7 @@
 			secIndex = row % 2 * 2 + col % 2;
 
 			// Cache value in matrix
+			console.log(this.parseKet(val));
 			this.matrix.row[row][col] = val;
 			this.matrix.col[col][row] = val;
 			this.matrix.sect[sectRow][sectCol][secIndex] = val;
@@ -400,10 +401,10 @@
 
 		/**
 		 * Validate the entire matrix
-		 * @param {String} vector The value that is inserted
+		 * @param {String} expression The value that is inserted
 		 * @returns {Boolean} Valid or invalid matrix
 		 */
-		parseKet: function(vector) {
+		parseKet: function(expression) {
 			var dict = new Object();
 			dict = {
 				'1': [1,0,0,0],
@@ -412,25 +413,24 @@
 				'4': [0,0,0,1]
 			}
 			
-			var v1 = [0,0,0,0]
-			var flag = false 
-			var add = false
-			var v2 = [0,0,0,0]
+			var v1 = [0,0,0,0];
+			var flag = false;
+			var add = false;
+			var v2 = [0,0,0,0];
+			var c; 
 
-			for (var i = 0; i < vector.length; i++) {
-				c = vector.charAt(i);
+			for (var i = 0; i < expression.length; i++) {
+				c = expression.charAt(i);
 				if (c >= '1' && c <= '4') {
 					if (flag == false) {
 						v1 = dict[c] //read first vector
-						console.log(v1, v2);
 						flag = true;
 					} else {
 						v2 = dict[c] //read second vector
-						console.log(v1, v2);
 						add = true;
 					}
 				} else {
-					if (flag == dodac) { //@todo róznica
+					if (flag == add) { //@todo róznica
 						if (c == "+"){
 							v1 = this.sum(v1,v2);
 							add = false;
@@ -438,9 +438,8 @@
 					}
 				}
 			}
-			this.sum(v1,v2);
+			return this.sum(v1,v2);
 
-			return !hasError;
 		},
 
 		/**
