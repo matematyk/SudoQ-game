@@ -91,7 +91,7 @@
 				for (var j = 0; j < 4; j++) {
 					// Build the input
 					this.cellMatrix[i][j] = document.createElement("input");
-					this.cellMatrix[i][j].maxLength = 7;
+					this.cellMatrix[i][j].maxLength = 8;
 
 					// Using dataset returns strings which means messing around parsing them later
 					// Set custom properties instead
@@ -160,6 +160,13 @@
 				input.classList.toggle("invalid", !isValid);
 			}
 
+			//printTEMP
+			for (let iter1 = 0; iter1 < 4; iter1++) for (let iter2 = 0; iter2 < 4; iter2++) {
+			console.log("element on pos ",[iter1,iter2]," equals ",this.matrix.row[iter1][iter2]," ---- validation: ",this.validation.row[iter1],);
+			}
+			//printTEMP
+
+
 			// Calculate section identifiers
 			sectRow = Math.floor(row / 2);
 			sectCol = Math.floor(col / 2);
@@ -171,6 +178,12 @@
 			this.matrix.row[row][col] = val;
 			this.matrix.col[col][row] = val;
 			this.matrix.sect[sectRow][sectCol][secIndex] = val;
+			// make all elements arrays
+			let valPars = this.parseKet(val);
+			if(valPars == undefined) valPars = [0,0,0,0];
+			this.matrix.row[row][col] = valPars;
+			this.matrix.col[col][row] = valPars;
+			this.matrix.sect[sectRow][sectCol][secIndex] = valPars;
 		},
 		
 		onMouseDown: function(e) {
@@ -402,9 +415,9 @@
 
 
 		/**
-		 * Validate the entire matrix
+		 * Parsing expressions that user inserts
 		 * @param {String} expression The value that is inserted
-		 * @returns {Boolean} Valid or invalid matrix
+		 * @returns {String} output, i.e. vector in form of an array e.g. [0,1,-1,0]
 		 */
 		parseKet: function(expression) {
 			var lexer = new Lexer;
@@ -434,7 +447,8 @@
 			function parse(input) {
 				lexer.setInput(input);
 				var tokens = [], token;
-				while (token = lexer.lex()) tokens.push(token);
+				while (token = lexer.lex()) {tokens.push(token);				
+				}
 				return parser.parse(tokens);
 			}
 
@@ -458,7 +472,7 @@
 			
 
 			var operator = {
-				"+": function (a, b) { return self.suma(a, b); },
+				"+": function (a, b) { return self.sum(a, b); },
 				"-": function (a, b) { return self.subtract(a, b);},
 			};
 			var exp = "";
@@ -489,20 +503,18 @@
 
 			var output = stack.pop();
 			console.log(output)
-
 			return output
-
 		},
 
 		/**
-		 * Validate the entire matrix
-		 * @param {Array} v1 The value that is inserted
-		 * @param {Array} v2 The value that is inserted
-		 * @returns {Array} Valid or invalid matrix
+		 * Adding vectors
+		 * @param {Array} v1 first vector
+		 * @param {Array} v2 second vector
 		 */
-		suma: function(v1, v2) {
+		sum: function(v1, v2) {
 			let v = [0,0,0,0];
-			
+			if(v1==undefined) v1=[0,0,0,0]; //so that there are no errors when adding without first vec
+			if(v2==undefined) v2=[0,0,0,0]; //so that there are no errors when adding without second vec
 			v[0] = v1[0] + v2[0];
 			v[1] = v1[1] + v2[1];
 			v[2] = v1[2] + v2[2];
@@ -510,19 +522,27 @@
 			return v;
 		},
 		/**
-		 * Validate the entire matrix
-		 * @param {Array} v1 The value that is inserted
-		 * @param {Array} v2 The value that is inserted
-		 * @returns {Array} Valid or invalid matrix
+		 * Subtracting vectors
+		 * @param {Array} v1 first vector
+		 * @param {Array} v2 second vector
 		 */
 		subtract: function(v1, v2) {
 			let v = [0,0,0,0];
-
+			if(v1==undefined) v1=[0,0,0,0]; //so that there are no errors when adding without first vec
+			if(v2==undefined) v2=[0,0,0,0]; //so that there are no errors when adding without second vec
 			v[0] = v1[0] - v2[0];
 			v[1] = v1[1] - v2[1];
 			v[2] = v1[2] - v2[2];
 			v[3] = v1[3] - v2[3];
 			return v;
+		},
+		/**
+		 * Veryfying whether two vectors are orthogonal
+		 * @param {Array} v1 first vector
+		 * @param {Array} v2 second vector
+		 */
+		orthogonal: function(v1,v2) {
+			return 0 == v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2] + v1[3]*v2[3];
 		},
 		/**
 		 * A recursive 'backtrack' solver for the
