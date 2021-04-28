@@ -140,6 +140,7 @@
 				input = e.currentTarget
 
 			val = input.value.trim();
+			
 			row = input.row;
 			col = input.col;
 
@@ -165,6 +166,7 @@
 			secIndex = row % 2 * 2 + col % 2;
 
 			// Cache value in matrix
+			console.log(val);
 			console.log(this.parseKet(val));
 			this.matrix.row[row][col] = val;
 			this.matrix.col[col][row] = val;
@@ -405,63 +407,122 @@
 		 * @returns {Boolean} Valid or invalid matrix
 		 */
 		parseKet: function(expression) {
-			var dict = new Object();
-			dict = {
-				'1': [1,0,0,0],
-				'2': [0,1,0,0],
-				'3': [0,0,1,0],
-				'4': [0,0,0,1]
-			}
-			
-			var v1 = [0,0,0,0];
-			var flag = false;
-			var add = false;
-			var v2 = [0,0,0,0];
-			var c; 
+			var lexer = new Lexer;
 
+			lexer.addRule(/\s+/, function () {
+				/* skip whitespace */
+			});
+
+			lexer.addRule(/[a-z]/, function (lexeme) {
+				return lexeme; // symbols
+			});
+
+			lexer.addRule(/[\(\+\-\*\/\)]/, function (lexeme) {
+				return lexeme; // punctuation (i.e. "(", "+", "-", "*", "/", ")")
+			});
+
+			var term = {
+				precedence: 1,
+				associativity: "left"
+			};
+
+			var parser = new Parser({
+				"+": term,
+				"-": term,
+			});
+
+			function parse(input) {
+				lexer.setInput(input);
+				var tokens = [], token;
+				while (token = lexer.lex()) tokens.push(token);
+				return parser.parse(tokens);
+			}
+
+			var stack = [];
+
+			var context = {
+				"a": [1,0,0,0],
+				"b": [0,1,0,0],
+				"c": [0,0,1,0],
+				"d": [0,0,0,1]
+			};
+
+			var names = {
+				"1": "a",
+				"2": "b",
+				"3": "c",
+				"4": "d",
+			}
+
+			var self = this;
+			
+
+			var operator = {
+				"+": function (a, b) { return self.suma(a, b); },
+				"-": function (a, b) { return self.subtract(a, b);},
+			};
+			var exp = "";
+			var c = "";
+			
 			for (var i = 0; i < expression.length; i++) {
 				c = expression.charAt(i);
 				if (c >= '1' && c <= '4') {
-					if (flag == false) {
-						v1 = dict[c] //read first vector
-						flag = true;
-					} else {
-						v2 = dict[c] //read second vector
-						add = true;
-					}
+					exp += names[c];
 				} else {
-					if (flag == add) { //@todo róznica
-						if (c == "+"){
-							v1 = this.sum(v1,v2);
-							add = false;
-						}
-					}
+					exp += c;
 				}
 			}
-			return this.sum(v1,v2);
+
+			parse(exp).forEach(function (c) {
+				switch (c) {
+				case "+":
+				case "-":
+					var b = stack.pop();
+					var a = stack.pop();
+					stack.push(operator[c](a, b));
+					break;
+				default:
+					console.log(c);
+					stack.push(context[c]);
+				}
+			});
+
+			var output = stack.pop();
+			console.log(output)
+
+			return output
 
 		},
 
 		/**
 		 * Validate the entire matrix
-		 * @param {String} vector The value that is inserted
-		 * @returns {Boolean} Valid or invalid matrix
+		 * @param {Array} v1 The value that is inserted
+		 * @param {Array} v2 The value that is inserted
+		 * @returns {Array} Valid or invalid matrix
 		 */
-		sum: function(v1, v2) {
+		suma: function(v1, v2) {
 			let v = [0,0,0,0];
+			
 			v[0] = v1[0] + v2[0];
 			v[1] = v1[1] + v2[1];
 			v[2] = v1[2] + v2[2];
 			v[3] = v1[3] + v2[3];
-			return v
+			return v;
 		},
-		
+		/**
+		 * Validate the entire matrix
+		 * @param {Array} v1 The value that is inserted
+		 * @param {Array} v2 The value that is inserted
+		 * @returns {Array} Valid or invalid matrix
+		 */
 		subtract: function(v1, v2) {
 			let v = [0,0,0,0];
+
 			v[0] = v1[0] - v2[0];
 			v[1] = v1[1] - v2[1];
 			v[2] = v1[2] - v2[2];
 			v[3] = v1[3] - v2[3];
+			return v;
 		},
 		/**
 		 * A recursive 'backtrack' solver for the
