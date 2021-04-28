@@ -91,7 +91,7 @@
 				for (var j = 0; j < 4; j++) {
 					// Build the input
 					this.cellMatrix[i][j] = document.createElement("input");
-					this.cellMatrix[i][j].maxLength = 5;
+					this.cellMatrix[i][j].maxLength = 7;
 
 					// Using dataset returns strings which means messing around parsing them later
 					// Set custom properties instead
@@ -455,7 +455,14 @@
 			v[3] = v1[3] + v2[3];
 			return v
 		},
-
+		
+		subtract: function(v1, v2) {
+			let v = [0,0,0,0];
+			v[0] = v1[0] - v2[0];
+			v[1] = v1[1] - v2[1];
+			v[2] = v1[2] - v2[2];
+			v[3] = v1[3] - v2[3];
+		},
 		/**
 		 * A recursive 'backtrack' solver for the
 		 * game. Algorithm is based on the StackOverflow answer
