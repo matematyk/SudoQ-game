@@ -426,7 +426,7 @@
 				/* skip whitespace */
 			});
 
-			lexer.addRule(/[a-z]/, function (lexeme) {
+			lexer.addRule(/[1-4]/, function (lexeme) {
 				return lexeme; // symbols
 			});
 
@@ -455,18 +455,11 @@
 			var stack = [];
 
 			var context = {
-				"a": [1,0,0,0],
-				"b": [0,1,0,0],
-				"c": [0,0,1,0],
-				"d": [0,0,0,1]
+				"1": [1,0,0,0],
+				"2": [0,1,0,0],
+				"3": [0,0,1,0],
+				"4": [0,0,0,1]
 			};
-
-			var names = {
-				"1": "a",
-				"2": "b",
-				"3": "c",
-				"4": "d",
-			}
 
 			var self = this;
 			
@@ -475,19 +468,10 @@
 				"+": function (a, b) { return self.sum(a, b); },
 				"-": function (a, b) { return self.subtract(a, b);},
 			};
-			var exp = "";
 			var c = "";
 			
-			for (var i = 0; i < expression.length; i++) {
-				c = expression.charAt(i);
-				if (c >= '1' && c <= '4') {
-					exp += names[c];
-				} else {
-					exp += c;
-				}
-			}
-
-			parse(exp).forEach(function (c) {
+			
+			parse(expression).forEach(function (c) {
 				switch (c) {
 				case "+":
 				case "-":
@@ -496,13 +480,11 @@
 					stack.push(operator[c](a, b));
 					break;
 				default:
-					console.log(c);
 					stack.push(context[c]);
 				}
 			});
 
 			var output = stack.pop();
-			console.log(output)
 			return output
 		},
 
