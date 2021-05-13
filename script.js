@@ -412,7 +412,93 @@
 			}
 			return !hasError;
 		},
+	
+		/**
+		 * Finds a section number of a given
+		 * element on position (row,col). Sections
+		 * are enumerated in a clock-wise manner, 
+		 * starting from left upper:
+		 * 0,1
+		 * 2,3
+		 * 
+		 * @param {Number} row Number of a row
+		 * @param {Number} col Number of a column
+		 * @returns {Number} Number of a section
+		 */
+		 secNumberIndex: function(row, col) {
+			var sec;
+			if(row < 2)
+			{
+				if(col < 2) sec = 0;
+				else sec = 1;
+			}
+			else
+			{
+				if(col < 2) sec = 2;
+				else sec = 3;
+			}
+			return sec;
+		},
 
+		/**
+		 * Finds the position of an element (row,col)
+		 * in its section
+		 * @param {Number} row Number of a row
+		 * @param {Number} col Number of a column
+		 * @returns {Number} Position of the element in the section
+		 */
+		secPos: function(row, col) {
+			var pos;
+			if(row == 0 || row == 2)
+			{
+				if(col == 0 || col == 2) pos = 0; 
+				else pos = 1;
+			}
+			else
+			{
+				if(col == 0 || col == 2) pos = 2; 
+				else pos = 3;
+			}
+			return pos;
+		},
+
+		/**
+		 * Validate the SudoQ grid with insertion of
+		 * a vector in a position row, col
+		 * 
+		 * @param {Number} row Number of a row in which we insert
+		 * @param {Number} col Number of a column in which we insert
+		 * @param {Array} vec Vector which we insert
+		 * @returns {Boolean} Valid or invalid input
+		 */
+		validate: function(row, col, vec) {
+			var sec = this.secNumberIndex(row, col);
+			// providing list of indices with exclusion of the element
+			// we are checking
+			const rowIndices = [0, 1, 2, 3];
+			var index = rowIndices.indexOf(col); // all in row apart from the same col
+			if (index > -1) rowIndices.splice(index, 1);
+			const colIndices = [0, 1, 2, 3];
+			index = colIndices.indexOf(row); // we need to check all apart from row
+			if (index > -1) colIndices.splice(index, 1);
+			const secIndices = [0, 1, 2, 3];
+			index = secIndices.indexOf(this.secPos(row,col));
+			if (index > -1) secIndices.splice(index, 1);
+			// iterating over all possible indices and checking orthogonality
+			for (var iter1 = 0; iter1 < 3; iter1++)	{
+				index = rowIndices[iter1];
+				if(!(this.orthogonal(vec,this.matrix.row[row][index]))) return false;
+			}
+			for (iter1 = 0; iter1 < 3; iter1++)	{
+				index = colIndices[iter1];
+				if(!(this.orthogonal(vec,this.matrix.col[col][index]))) return false;
+			}
+			for (iter1 = 0; iter1 < 3; iter1++)	 {
+				index = secIndices[iter1];
+				if(!(this.orthogonal(vec,this.matrix.sec[sec][index]))) return false;
+			}
+			return true;
+		},
 
 		/**
 		 * Parsing expressions that user inserts
