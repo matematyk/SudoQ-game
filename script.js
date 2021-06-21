@@ -765,6 +765,27 @@
 	};
 
 	/**
+	 * Converts vector to string
+	 * e.g. [1,1,-1,1]->$\ket{1}+\ket{2}-\ket{3}+\ket{4}
+	 */
+	function vectortostring(vec) {
+		var str = "$";
+		for(let i=0; i<vec.length; i++) {
+			if(i>0 && vec[i] == 1) {
+				str += "+";
+			}
+			if(i>0 && vec[i] == -1) {
+				str += "-";
+			}
+			if(vec[i]!=0) {
+				str += "\ket{" + (i+1).toString() + "}";
+			}
+		}
+		str += "$";
+		return str;
+	}
+
+	/**
 	 * Get a random integer within a range
 	 *
 	 * @param {Number} min Minimum number
