@@ -766,7 +766,7 @@
 
 	/**
 	 * Converts vector to string
-	 * e.g. [1,1,-1,1]->$\ket{1}+\ket{2}-\ket{3}+\ket{4}
+	 * e.g. [1,1,-1,1]->$\ket{1}+\ket{2}-\ket{3}+\ket{4}$
 	 */
 	function vectortostring(vec) {
 		var str = "$";
@@ -783,6 +783,26 @@
 		}
 		str += "$";
 		return str;
+	}
+
+	/**
+	 * Converts strings to vectors,
+	 * e.g. $\ket{1}+\ket{2}-\ket{3}+\ket{4}$ -> [1,1,-1,1]
+	 *
+	 * @param {String} str 
+	 * @returns {Array} representation of the string 
+	 */
+	function stringtovector(str) {
+		let vec = [0,0,0,0];
+		const found = str.match(/[1-4\+\-]/g); //removes everything apart from +/-,1,2,3,4
+		if(/[1-4]/.test(found[0])) found.unshift("+"); // if there's no "+" at the beginning, add it
+		for(let i=1; i<found.length; i+=2) {
+			if(/[1]/.test(found[i])) {if(found[i-1] == "+"){vec[0] += 1} else{vec[0] += -1}}
+			if(/[2]/.test(found[i])) {if(found[i-1] == "+"){vec[1] += 1} else{vec[1] += -1}}
+			if(/[3]/.test(found[i])) {if(found[i-1] == "+"){vec[2] += 1} else{vec[2] += -1}}
+			if(/[4]/.test(found[i])) {if(found[i-1] == "+"){vec[3] += 1} else{vec[3] += -1}}
+		}
+		return vec;
 	}
 
 	/**
