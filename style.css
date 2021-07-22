@@ -38,7 +38,7 @@ body {
   right: 0px;
 }
 
-tr:nth-child(1) td:nth-child(2) input {
+tr:nth-child(1) td:nth-child(2) input, span {
   margin: 0 10px 0 0;
 }
 
@@ -46,7 +46,7 @@ tr:nth-child(2) input {
   margin: 0 0 10px 0;
 }
 
-.sudoku-container input {
+.sudoku-container input, div.elem{
   width: 100px;
   height: 100px;
   text-align: center;

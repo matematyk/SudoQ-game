@@ -74,6 +74,37 @@
 	 * @property {Object}
 	 */
 	Game.prototype = {
+		buildGUIKet: function() {
+			var td, tr;
+
+			this.table_ket = document.createElement("table");
+			this.table_ket.classList.add("sudoku-container");
+
+			for (var i = 0; i < 4; i++) {
+				tr = document.createElement("tr");
+
+				for (var j = 0; j < 4; j++) {
+					// Build the input
+					var div = document.createElement("div");
+					div.className = 'elem'
+					td = document.createElement("td");
+
+					td.appendChild(div);
+
+					//this.cellMatrix[i][j].addEventListener("keyup", this.onKeyUp.bind(this));
+					tr.appendChild(td);
+
+				}
+				// Append to table
+				this.table_ket.appendChild(tr);
+			}
+			
+			//this.table.addEventListener("mousedown", this.onMouseDown.bind(this));
+			
+			// Return the GUI table
+			return this.table_ket;
+		},
+
 		/**
 		 * Build the game GUI
 		 * @returns {HTMLTableElement} Table containing 4x4 input matrix
@@ -121,7 +152,7 @@
 			}
 			
 			this.table.addEventListener("mousedown", this.onMouseDown.bind(this));
-
+			
 			// Return the GUI table
 			return this.table;
 		},
@@ -160,11 +191,6 @@
 				input.classList.toggle("invalid", !isValid);
 			}
 
-			//printTEMP
-			for (let iter1 = 0; iter1 < 4; iter1++) for (let iter2 = 0; iter2 < 4; iter2++) {
-			console.log("element on pos ",[iter1,iter2]," equals ",this.matrix.row[iter1][iter2]," ---- validation: ",this.validation.row[iter1],);
-			}
-			//printTEMP
 
 
 			// Calculate section identifiers
@@ -173,8 +199,6 @@
 			secIndex = row % 2 * 2 + col % 2;
 
 			// Cache value in matrix
-			console.log(val);
-			console.log(this.parseKet(val));
 			this.matrix.row[row][col] = val;
 			this.matrix.col[col][row] = val;
 			this.matrix.sect[sectRow][sectCol][secIndex] = val;
@@ -841,6 +865,11 @@
 		this.game = new Game(util.extend(defaultConfig, settings));
 
 		this.container.appendChild(this.getGameBoard());
+		
+		//console.log(this.getGameBoardKet());
+		document.body.insertBefore(this.getGameBoardKet(), this.container);
+		//console.log(this.getGameBoardKet());
+
 	};
 
 	Sudoku.prototype = {
@@ -851,6 +880,11 @@
 		getGameBoard: function() {
 			return this.game.buildGUI();
 		},
+
+		getGameBoardKet: function() {
+			return this.game.buildGUIKet();
+		},
+
 
 		newGame: function() {
 			var that = this;
@@ -870,6 +904,7 @@
 				values,
 				rows = this.game.matrix.row,
 				inputs = this.game.table.getElementsByTagName("input"),
+				divs = this.game.table_ket.getElementsByTagName("div"),
 				difficulties = {
 					"easy": 8,
 					"normal": 7,
@@ -897,7 +932,10 @@
 
 			util.each(values, function(i, data) {
 				var input = inputs[data.index];
-				input.value = data.value;
+				var div = divs[data.index];
+				div.innerHTML = "$\|"+data.value+"\\rangle$"
+
+				input.value = data.value
 				input.classList.add("disabled");
 				input.tabIndex = -1;
 				triggerEvent(input, 'keyup');
