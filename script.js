@@ -1,6 +1,21 @@
 (function(global) {
 	"use strict";
-
+	MathJax.Hub.Config({
+		tex2jax: {
+			inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+			displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+			processEscapes: true,
+			processEnvironments: true
+		},
+		// Center justify equations in code and markdown cells. Elsewhere
+		// we use CSS to left justify single line equations in code cells.
+		displayAlign: 'center',
+		"HTML-CSS": {
+			styles: {'.MathJax_Display': {"margin": 0}},
+			linebreaks: { automatic: true },
+		},
+		
+	});
 	// Helper utilities
 	var util = {
 		extend: function(src, props) {
@@ -171,13 +186,13 @@
 				input = e.currentTarget
 
 			val = input.value.trim();
-			
 			row = input.row;
 			col = input.col;
 
 			// Reset board validation class
 			this.table.classList.remove("valid-matrix");
 			input.classList.remove("invalid");
+
 
 			//if (!util.isNumber(val)) {
 			//	input.value = ""; @TODO wyrazenie regularne
@@ -202,12 +217,21 @@
 			this.matrix.row[row][col] = val;
 			this.matrix.col[col][row] = val;
 			this.matrix.sect[sectRow][sectCol][secIndex] = val;
+			var divs = this.table_ket.getElementsByTagName("div");
+			console.log(input.row*4+input.col, 'input.row');
+			divs[input.row*4+input.col].innerHTML =  "$\|"+val+"\\rangle$"
+			  
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub,element]);
+
+
 			// make all elements arrays
 			let valPars = this.parseKet(val);
 			if(valPars == undefined) valPars = [0,0,0,0];
 			this.matrix.row[row][col] = valPars;
 			this.matrix.col[col][row] = valPars;
 			this.matrix.sect[sectRow][sectCol][secIndex] = valPars;
+			
+
 		},
 		
 		onMouseDown: function(e) {
