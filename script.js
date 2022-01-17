@@ -322,75 +322,6 @@
 			}
 		},
 
-		/**
-		 * Validate the current number that was inserted.
-		 *
-		 * @param {String} num The value that is inserted
-		 * @param {Number} rowID The row the number belongs to
-		 * @param {Number} colID The column the number belongs to
-		 * @param {String} oldNum The previous value
-		 * @returns {Boolean} Valid or invalid input
-		 */
-		validateNumber: function(num, rowID, colID, oldNum) {
-			var isValid = true,
-				// Section
-				sectRow = Math.floor(rowID / 2),
-				sectCol = Math.floor(colID / 2),
-				row = this.validation.row[rowID],
-				col = this.validation.col[colID],
-				sect = this.validation.sect[sectRow][sectCol];
-
-			// This is given as the matrix component (old value in
-			// case of change to the input) in the case of on-insert
-			// validation. However, in the solver, validating the
-			// old number is unnecessary.
-			oldNum = oldNum || "";
-
-			// Remove oldNum from the validation matrices,
-			// if it exists in them.
-			if (util.includes(row, oldNum)) {
-				row.splice(row.indexOf(oldNum), 1);
-			}
-			if (util.includes(col, oldNum)) {
-				col.splice(col.indexOf(oldNum), 1);
-			}
-			if (util.includes(sect, oldNum)) {
-				sect.splice(sect.indexOf(oldNum), 1);
-			}
-			// Skip if empty value
-
-			if (num !== "") {
-				// Validate value
-				if (
-					// Make sure value is within range
-					Number(num) > 0 &&
-					Number(num) <= 4
-				) {
-					// Check if it already exists in validation array
-					if (
-						util.includes(row, num) ||
-						util.includes(col, num) ||
-						util.includes(sect, num)
-					) {
-						isValid = false;
-					} else {
-						isValid = true;
-					}
-				}
-
-				// Insert new value into validation array even if it isn't
-				// valid. This is on purpose: If there are two numbers in the
-				// same row/col/section and one is replaced, the other still
-				// exists and should be reflected in the validation.
-				// The validation will keep records of duplicates so it can
-				// remove them safely when validating later changes.
-				row.push(num);
-				col.push(num);
-				sect.push(num);
-			}
-
-			return isValid;
-		},
 
 		/**
 		 * Validate the current vector that was inserted.
@@ -431,23 +362,8 @@
 
 			if (vector !== "") {
 				// Validate value
-				if (
-					// Make sure value is within range
-					true 
-					//@TODO regex
-				) {
-					// Check if it already exists in validation array
-					if (
-						util.includes(row, vector) ||
-						util.includes(col, vector) ||
-						util.includes(sect, vector)
-					) {
-						isValid = false;
-					} else {
-						isValid = true;
-					}
-				}
-
+				isValid = this.validate(rowID, colID, vector);
+				console.log(isValid);
 				// Insert new value into validation array even if it isn't
 				// valid. This is on purpose: If there are two vectors in the
 				// same row/col/section and one is replaced, the other still
@@ -460,6 +376,49 @@
 			}
 
 			return isValid;
+		},
+				/**
+		 * Validate the SudoQ grid with insertion of
+		 * a vector in a position row, col
+		 * 
+		 * @param {Number} row Number of a row in which we insert
+		 * @param {Number} col Number of a column in which we insert
+		 * @param {Array} vec Vector which we insert
+		 * @returns {Boolean} Valid or invalid input
+		 */
+		validate: function(row, col, vec) {
+			var sec = this.secNumberIndex(row, col);
+			// providing list of indices with exclusion of the element
+			// we are checking
+			const rowIndices = [0, 1, 2, 3];
+			var index = rowIndices.indexOf(col); // all in row apart from the same col
+			if (index > -1) rowIndices.splice(index, 1);
+			const colIndices = [0, 1, 2, 3];
+			index = colIndices.indexOf(row); // we need to check all apart from row
+			if (index > -1) colIndices.splice(index, 1);
+			const secIndices = [0, 0, 1, 1];
+			index = secIndices.indexOf(this.secPos(row,col));
+			if (index > -1) secIndices.splice(index, 1);
+			// iterating over all possible indices and checking orthogonality
+			for (var iter1 = 0; iter1 < 3; iter1++)	{
+				index = rowIndices[iter1];
+				if (this.matrix.row[row][index] != '') {
+					var v1 = stringtovector(vec);
+					var v2 = stringtovector(this.matrix.row[row][index]);
+					if(!(this.orthogonal(v1,v2))) return false;
+				}
+			}
+			for (iter1 = 0; iter1 < 3; iter1++)	{
+				index = colIndices[iter1];
+				if (this.matrix.col[col][index] != '') {
+					var v1 = stringtovector(vec);
+					var v2 = stringtovector(this.matrix.col[col][index]);
+
+					if(!(this.orthogonal(v1,v2))) return false;
+				}
+			}
+
+			return true;
 		},
 
 		/**
@@ -534,43 +493,7 @@
 			return pos;
 		},
 
-		/**
-		 * Validate the SudoQ grid with insertion of
-		 * a vector in a position row, col
-		 * 
-		 * @param {Number} row Number of a row in which we insert
-		 * @param {Number} col Number of a column in which we insert
-		 * @param {Array} vec Vector which we insert
-		 * @returns {Boolean} Valid or invalid input
-		 */
-		validate: function(row, col, vec) {
-			var sec = this.secNumberIndex(row, col);
-			// providing list of indices with exclusion of the element
-			// we are checking
-			const rowIndices = [0, 1, 2, 3];
-			var index = rowIndices.indexOf(col); // all in row apart from the same col
-			if (index > -1) rowIndices.splice(index, 1);
-			const colIndices = [0, 1, 2, 3];
-			index = colIndices.indexOf(row); // we need to check all apart from row
-			if (index > -1) colIndices.splice(index, 1);
-			const secIndices = [0, 1, 2, 3];
-			index = secIndices.indexOf(this.secPos(row,col));
-			if (index > -1) secIndices.splice(index, 1);
-			// iterating over all possible indices and checking orthogonality
-			for (var iter1 = 0; iter1 < 3; iter1++)	{
-				index = rowIndices[iter1];
-				if(!(this.orthogonal(vec,this.matrix.row[row][index]))) return false;
-			}
-			for (iter1 = 0; iter1 < 3; iter1++)	{
-				index = colIndices[iter1];
-				if(!(this.orthogonal(vec,this.matrix.col[col][index]))) return false;
-			}
-			for (iter1 = 0; iter1 < 3; iter1++)	 {
-				index = secIndices[iter1];
-				if(!(this.orthogonal(vec,this.matrix.sec[sec][index]))) return false;
-			}
-			return true;
-		},
+
 
 		/**
 		 * Parsing expressions that user inserts
