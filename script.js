@@ -396,7 +396,7 @@
 			const colIndices = [0, 1, 2, 3];
 			index = colIndices.indexOf(row); // we need to check all apart from row
 			if (index > -1) colIndices.splice(index, 1);
-			const secIndices = [0, 0, 1, 1];
+			const secIndices = [0, 1, 2, 3];
 			index = secIndices.indexOf(this.secPos(row,col));
 			if (index > -1) secIndices.splice(index, 1);
 			// iterating over all possible indices and checking orthogonality
@@ -413,6 +413,20 @@
 				if (this.matrix.col[col][index] != '') {
 					var v1 = stringtovector(vec);
 					var v2 = stringtovector(this.matrix.col[col][index]);
+
+					if(!(this.orthogonal(v1,v2))) return false;
+				}
+			}
+			for (iter1 = 0; iter1 < 3; iter1++)	{
+				indexPos = secIndices[iter1];
+				secNumber = sec(row,col);
+				// we need to translate the (secNumber,secPos) position to sections
+				rowColumnNumber = this.secPosInv(secNumber,indexPos);
+				rowNumber = rowColumnNumber[0];
+				columnNumber = rowColumnNumber[1];
+				if (this.matrix.row[rowNumber][columnNumber] != '') {
+					var v1 = stringtovector(vec);
+					var v2 = stringtovector(this.matrix.row[rowNumber][columnNumber]);
 
 					if(!(this.orthogonal(v1,v2))) return false;
 				}
@@ -472,6 +486,27 @@
 		},
 
 		/**
+		 * Finds the section of an element (row,col)
+		 * @param {Number} row Number of a row
+		 * @param {Number} col Number of a column
+		 * @returns {Number} Number of the section
+		 */
+		 sec: function(row, col) {
+			var sec;
+			if(row == 0 || row == 1)
+			{
+				if(col == 0 || col == 1) sec = 0; 
+				else sec = 1;
+			}
+			else
+			{
+				if(col == 0 || col == 1) sec = 2; 
+				else sec = 3;
+			}
+			return sec;
+		},
+
+		/**
 		 * Finds the position of an element (row,col)
 		 * in its section
 		 * @param {Number} row Number of a row
@@ -491,6 +526,37 @@
 				else pos = 3;
 			}
 			return pos;
+		},
+
+		/**
+		 * Finds the indices (row,col) of an element (secNum,secPosNum)
+		 * @param {Number} secNum Number of a section
+		 * @param {Number} secPosNum Position of a vector in a given section
+		 * @returns {Array} [row,col] position in the SudoQ grid
+		 */
+		secPosInv: function(secNum, secPosNum) {
+			var row, col;
+			if(secNum == 0 || secNum == 2)
+			{
+				if(secPosNum == 0 || secPosNum == 2) col = 0; 
+				else col = 1;
+			}
+			else
+			{
+				if(secPosNum == 0 || secPosNum == 2) col = 2; 
+				else col = 3;
+			}
+			if(secNum == 0 || secNum == 1)
+			{
+				if(secPosNum == 0 || secPosNum == 1) row = 0; 
+				else row = 1;
+			}
+			else
+			{
+				if(secPosNum == 0 || secPosNum == 1) row = 2; 
+				else row = 3;
+			}
+			return [row,col];
 		},
 
 
