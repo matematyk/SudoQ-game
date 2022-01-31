@@ -418,7 +418,7 @@
 				}
 			}
 			for (iter1 = 0; iter1 < 3; iter1++)	{
-				indexPos = secIndices[iter1];
+				const indexPos = secIndices[iter1];
 				secNumber = sec(row,col);
 				// we need to translate the (secNumber,secPos) position to sections
 				rowColumnNumber = this.secPosInv(secNumber,indexPos);
