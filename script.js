@@ -377,7 +377,109 @@
 
 			return isValid;
 		},
-				/**
+
+		/**
+		 * SudoQ: Finds a section number of a given
+		 * element on position (row,col). Sections
+		 * are enumerated in a clock-wise manner, 
+		 * starting from left upper:
+		 * 0,1
+		 * 2,3
+		 * 
+		 * @param {Number} row Number of a row
+		 * @param {Number} col Number of a column
+		 * @returns {Number} Number of a section
+		 */
+		secNumberIndex: function(row, col) {
+			var sec;
+			if(row < 2)
+			{
+				if(col < 2) sec = 0;
+				else sec = 1;
+			}
+			else
+			{
+				if(col < 2) sec = 2;
+				else sec = 3;
+			}
+			return sec;
+		},
+
+		/**
+		 * SudoQ: Finds the section of an element (row,col)
+		 * @param {Number} row Number of a row
+		 * @param {Number} col Number of a column
+		 * @returns {Number} Number of the section
+		 */
+		secNumFun: function(row, col) {
+			var sec;
+			if(row == 0 || row == 1)
+			{
+				if(col == 0 || col == 1) sec = 0; 
+				else sec = 1;
+			}
+			else
+			{
+				if(col == 0 || col == 1) sec = 2; 
+				else sec = 3;
+			}
+			return sec;
+		},
+
+		/**
+		 * SudoQ: Finds the position of an element (row,col)
+		 * in its section
+		 * @param {Number} row Number of a row
+		 * @param {Number} col Number of a column
+		 * @returns {Number} Position of the element in the section
+		 */
+		secPos: function(row, col) {
+			var pos;
+			if(row == 0 || row == 2)
+			{
+				if(col == 0 || col == 2) pos = 0; 
+				else pos = 1;
+			}
+			else
+			{
+				if(col == 0 || col == 2) pos = 2; 
+				else pos = 3;
+			}
+			return pos;
+		},
+
+		/**
+		 * SudoQ: Finds the indices (row,col) of an element (secNum,secPosNum)
+		 * @param {Number} secNum Number of a section
+		 * @param {Number} secPosNum Position of a vector in a given section
+		 * @returns {Array} [row,col] position in the SudoQ grid
+		 */
+		secPosInv: function(secNum, secPosNum) {
+			var row, col;
+			if(secNum == 0 || secNum == 2)
+			{
+				if(secPosNum == 0 || secPosNum == 2) col = 0; 
+				else col = 1;
+			}
+			else
+			{
+				if(secPosNum == 0 || secPosNum == 2) col = 2; 
+				else col = 3;
+			}
+			if(secNum == 0 || secNum == 1)
+			{
+				if(secPosNum == 0 || secPosNum == 1) row = 0; 
+				else row = 1;
+			}
+			else
+			{
+				if(secPosNum == 0 || secPosNum == 1) row = 2; 
+				else row = 3;
+			}
+			return [row,col];
+		},
+
+		/**
 		 * Validate the SudoQ grid with insertion of
 		 * a vector in a position row, col
 		 * 
@@ -403,6 +505,9 @@
 			for (var iter1 = 0; iter1 < 3; iter1++)	{
 				index = rowIndices[iter1];
 				if (this.matrix.row[row][index] != '') {
+					console.log("vec is");
+					console.log(vec);
+					console.log("end");
 					var v1 = stringtovector(vec);
 					var v2 = stringtovector(this.matrix.row[row][index]);
 					if(!(this.orthogonal(v1,v2))) return false;
@@ -419,11 +524,11 @@
 			}
 			for (iter1 = 0; iter1 < 3; iter1++)	{
 				const indexPos = secIndices[iter1];
-				secNumber = sec(row,col);
+				var secNumber = this.secNumFun(row,col);
 				// we need to translate the (secNumber,secPos) position to sections
-				rowColumnNumber = this.secPosInv(secNumber,indexPos);
-				rowNumber = rowColumnNumber[0];
-				columnNumber = rowColumnNumber[1];
+				var rowColumnNumber = this.secPosInv(secNumber,indexPos);
+				var rowNumber = rowColumnNumber[0];
+				var columnNumber = rowColumnNumber[1];
 				if (this.matrix.row[rowNumber][columnNumber] != '') {
 					var v1 = stringtovector(vec);
 					var v2 = stringtovector(this.matrix.row[rowNumber][columnNumber]);
@@ -457,109 +562,6 @@
 			}
 			return !hasError;
 		},
-	
-		/**
-		 * Finds a section number of a given
-		 * element on position (row,col). Sections
-		 * are enumerated in a clock-wise manner, 
-		 * starting from left upper:
-		 * 0,1
-		 * 2,3
-		 * 
-		 * @param {Number} row Number of a row
-		 * @param {Number} col Number of a column
-		 * @returns {Number} Number of a section
-		 */
-		 secNumberIndex: function(row, col) {
-			var sec;
-			if(row < 2)
-			{
-				if(col < 2) sec = 0;
-				else sec = 1;
-			}
-			else
-			{
-				if(col < 2) sec = 2;
-				else sec = 3;
-			}
-			return sec;
-		},
-
-		/**
-		 * Finds the section of an element (row,col)
-		 * @param {Number} row Number of a row
-		 * @param {Number} col Number of a column
-		 * @returns {Number} Number of the section
-		 */
-		 sec: function(row, col) {
-			var sec;
-			if(row == 0 || row == 1)
-			{
-				if(col == 0 || col == 1) sec = 0; 
-				else sec = 1;
-			}
-			else
-			{
-				if(col == 0 || col == 1) sec = 2; 
-				else sec = 3;
-			}
-			return sec;
-		},
-
-		/**
-		 * Finds the position of an element (row,col)
-		 * in its section
-		 * @param {Number} row Number of a row
-		 * @param {Number} col Number of a column
-		 * @returns {Number} Position of the element in the section
-		 */
-		secPos: function(row, col) {
-			var pos;
-			if(row == 0 || row == 2)
-			{
-				if(col == 0 || col == 2) pos = 0; 
-				else pos = 1;
-			}
-			else
-			{
-				if(col == 0 || col == 2) pos = 2; 
-				else pos = 3;
-			}
-			return pos;
-		},
-
-		/**
-		 * Finds the indices (row,col) of an element (secNum,secPosNum)
-		 * @param {Number} secNum Number of a section
-		 * @param {Number} secPosNum Position of a vector in a given section
-		 * @returns {Array} [row,col] position in the SudoQ grid
-		 */
-		secPosInv: function(secNum, secPosNum) {
-			var row, col;
-			if(secNum == 0 || secNum == 2)
-			{
-				if(secPosNum == 0 || secPosNum == 2) col = 0; 
-				else col = 1;
-			}
-			else
-			{
-				if(secPosNum == 0 || secPosNum == 2) col = 2; 
-				else col = 3;
-			}
-			if(secNum == 0 || secNum == 1)
-			{
-				if(secPosNum == 0 || secPosNum == 1) row = 0; 
-				else row = 1;
-			}
-			else
-			{
-				if(secPosNum == 0 || secPosNum == 1) row = 2; 
-				else row = 3;
-			}
-			return [row,col];
-		},
-
-
 
 		/**
 		 * Parsing expressions that user inserts
@@ -824,6 +826,65 @@
 			return legalNums;
 		}
 	};
+
+				
+
+
+
+
+	/**
+	 * Finds the position of an element (row,col)
+	 * in its section
+	 * @param {Number} row Number of a row
+	 * @param {Number} col Number of a column
+	 * @returns {Number} Position of the element in the section
+	 */
+	function secPos(row, col) {
+		var pos;
+		if(row == 0 || row == 2)
+		{
+			if(col == 0 || col == 2) pos = 0; 
+			else pos = 1;
+		}
+		else
+		{
+			if(col == 0 || col == 2) pos = 2; 
+			else pos = 3;
+		}
+		return pos;
+	}
+
+	/**
+	 * Finds the indices (row,col) of an element (secNum,secPosNum)
+	 * @param {Number} secNum Number of a section
+	 * @param {Number} secPosNum Position of a vector in a given section
+	 * @returns {Array} [row,col] position in the SudoQ grid
+	 */
+	function secPosInv(secNum, secPosNum) {
+		var row, col;
+		if(secNum == 0 || secNum == 2)
+		{
+			if(secPosNum == 0 || secPosNum == 2) col = 0; 
+			else col = 1;
+		}
+		else
+		{
+			if(secPosNum == 0 || secPosNum == 2) col = 2; 
+			else col = 3;
+		}
+		if(secNum == 0 || secNum == 1)
+		{
+			if(secPosNum == 0 || secPosNum == 1) row = 0; 
+			else row = 1;
+		}
+		else
+		{
+			if(secPosNum == 0 || secPosNum == 1) row = 2; 
+			else row = 3;
+		}
+		return [row,col];
+	}
+
 
 	/**
 	 * Converts vector to string
